@@ -3,12 +3,9 @@
     <h1>
       Typr.
     </h1>
-    <div id="controls">
-      <div id="bottom-controls">
-        <div id="info" :class="{ 'game-over': isGameOver }">{{ info }}</div>
-        <button id="newGameBtn" @click="newGame">New game</button>
-      </div>
-      <div id="top-controls">
+    <div id="header">
+      <div id="info">{{ info }}</div>
+      <div id="controls">
         <div id="mode-selector">
           <button 
             @click="setMode('words')"
@@ -43,11 +40,7 @@
             </option>
           </select>
         </div>
-        <div id="theme-selector">
-          <button @click="toggleThemeModal" class="theme-btn" title="Customize Theme">
-            🎨 Theme
-          </button>
-        </div>
+        <button id="newGameBtn" @click="newGame">New game</button>
       </div>
     </div>
     <div id="game" tabindex="0" @keydown="handleKeydown" @keyup.prevent :class="{ over: isGameOver, 'code-mode': gameMode === 'code' }">
@@ -63,408 +56,8 @@
       <div id="cursor" :style="{ top: cursorTop + 'px', left: cursorLeft + 'px' }"></div>
       <div id="focus-error" v-if="!isFocused" @click="focusGame">Click here to focus</div>
     </div>
-
-    <!-- Theme Modal -->
-    <div v-if="showThemeModal" class="theme-modal-overlay" @click="closeThemeModal">
-      <div class="theme-modal" @click.stop>
-        <div class="theme-modal-header">
-          <h3>Customize Theme</h3>
-          <button @click="closeThemeModal" class="close-btn">×</button>
-        </div>
-        
-        <div class="theme-content">
-          <!-- Preset Themes -->
-          <div class="preset-themes">
-            <h4>Preset Themes</h4>
-            <div class="theme-grid">
-              <div 
-                v-for="theme in presetThemes" 
-                :key="theme.name"
-                @click="applyPresetTheme(theme)"
-                class="theme-card"
-                :class="{ active: currentTheme.name === theme.name }"
-                :style="{ 
-                  backgroundColor: theme.colors.bgColor,
-                  border: `2px solid ${theme.colors.primaryColor}`,
-                  color: theme.colors.textPrimary
-                }"
-              >
-                <div class="theme-name">{{ theme.name }}</div>
-                <div class="theme-preview">
-                  <div class="preview-text" :style="{ color: theme.colors.textSecondary }">Aa</div>
-                  <div class="preview-accent" :style="{ backgroundColor: theme.colors.primaryColor }"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Custom Colors -->
-          <div class="custom-colors">
-            <h4>Custom Colors</h4>
-            <div class="color-controls">
-              <div class="color-group">
-                <label>Background</label>
-                <input 
-                  type="color" 
-                  v-model="currentTheme.colors.bgColor" 
-                  @input="updateTheme"
-                  class="color-input"
-                />
-                <span class="color-value">{{ currentTheme.colors.bgColor }}</span>
-              </div>
-              
-              <div class="color-group">
-                <label>Primary Text</label>
-                <input 
-                  type="color" 
-                  v-model="currentTheme.colors.textPrimary" 
-                  @input="updateTheme"
-                  class="color-input"
-                />
-                <span class="color-value">{{ currentTheme.colors.textPrimary }}</span>
-              </div>
-              
-              <div class="color-group">
-                <label>Secondary Text</label>
-                <input 
-                  type="color" 
-                  v-model="currentTheme.colors.textSecondary" 
-                  @input="updateTheme"
-                  class="color-input"
-                />
-                <span class="color-value">{{ currentTheme.colors.textSecondary }}</span>
-              </div>
-              
-              <div class="color-group">
-                <label>Accent Color</label>
-                <input 
-                  type="color" 
-                  v-model="currentTheme.colors.primaryColor" 
-                  @input="updateTheme"
-                  class="color-input"
-                />
-                <span class="color-value">{{ currentTheme.colors.primaryColor }}</span>
-              </div>
-              
-              <div class="color-group">
-                <label>Error Color</label>
-                <input 
-                  type="color" 
-                  v-model="currentTheme.colors.errorColor" 
-                  @input="updateTheme"
-                  class="color-input"
-                />
-                <span class="color-value">{{ currentTheme.colors.errorColor }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="theme-actions">
-            <button @click="resetToDefault" class="reset-btn">Reset to Default</button>
-            <button @click="saveTheme" class="save-btn">Save Theme</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 </template>
-
-<style scoped>
-.code-container {
-  text-align: left;
-  margin: 0 auto;
-  max-width: 800px;
-  padding: 1rem;
-}
-
-#controls {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-#top-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-#bottom-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
-
-#info {
-  font-size: 2.5em;
-  font-weight: bold;
-  width: 100px;
-  text-align: right;
-  padding-right: 1rem;
-  white-space: pre-line;
-  transition: all 0.3s ease;
-}
-
-/* Game over state styling */
-#info.game-over {
-  width: auto;
-  min-width: 200px;
-  font-size: 1.5em;
-  text-align: center;
-  padding-right: 0;
-  line-height: 1.3;
-}
-
-#newGameBtn {
-  padding: 1rem 2rem;
-  font-size: 1.2em;
-  background-color: #f0b429;
-  color: #242424;
-  font-weight: bold;
-  border: none;
-}
-
-#mode-selector,
-#time-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.mode-btn,
-.time-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-  transition: all 0.2s ease-in-out;
-}
-
-.mode-btn:hover,
-.time-btn:hover {
-  background-color: #444;
-}
-
-.mode-btn.active,
-.time-btn.active {
-  background-color: #f0b429;
-  color: #242424;
-  border-color: #f0b429;
-}
-
-.language-select {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-}
-
-/* Theme button */
-.theme-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.theme-btn:hover {
-  background-color: #444;
-}
-
-/* Theme modal styles */
-.theme-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.theme-modal {
-  background: #2c2c2c;
-  border-radius: 8px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.theme-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.theme-modal h3 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: #f0b429;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #888;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-  color: #f0b429;
-}
-
-.theme-content h4 {
-  color: #f0b429;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-}
-
-.preset-themes {
-  margin-bottom: 2rem;
-}
-
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1rem;
-}
-
-.theme-card {
-  padding: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-  position: relative;
-}
-
-.theme-card.active {
-  transform: scale(1.05);
-  border-color: #f0b429;
-}
-
-.theme-name {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  color: #f0b429;
-}
-
-.theme-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.preview-text {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.preview-accent {
-  width: 100%;
-  height: 4px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  border-radius: 2px;
-}
-
-.custom-colors {
-  margin-bottom: 2rem;
-}
-
-.color-controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.color-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.color-group label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #f0b429;
-}
-
-.color-input {
-  height: 40px;
-  border: 2px solid #555;
-  border-radius: 4px;
-  background: #333;
-  color: #fff;
-  padding: 0 0.5rem;
-  transition: border-color 0.3s ease;
-}
-
-.color-input:focus {
-  outline: none;
-  border-color: #f0b429;
-}
-
-.color-value {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #888;
-}
-
-.theme-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.reset-btn,
-.save-btn {
-  padding: 0.7rem 1.5rem;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-weight: 500;
-}
-
-.reset-btn {
-  background: #555;
-  color: #fff;
-}
-
-.reset-btn:hover {
-  background: #666;
-}
-
-.save-btn {
-  background: #f0b429;
-  color: #242424;
-}
-
-.save-btn:hover {
-  background: #e6c33a;
-}
-</style>
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
@@ -488,103 +81,6 @@ const gameMode = ref('words'); // 'words' or 'code'
 const selectedLanguage = ref('javascript');
 const codeText = ref([]);
 const currentCharIndex = ref(0);
-
-// Theme management
-const showThemeModal = ref(false);
-const currentTheme = ref({
-  name: 'Default',
-  colors: {
-    bgColor: '#2c2c2c',
-    textPrimary: '#f2f2f2',
-    textSecondary: '#888',
-    primaryColor: '#ffdd44',
-    errorColor: '#ff5555'
-  }
-});
-
-// Preset themes
-const presetThemes = [
-  {
-    name: 'Default',
-    colors: {
-      bgColor: '#2c2c2c',
-      textPrimary: '#f2f2f2',
-      textSecondary: '#888',
-      primaryColor: '#ffdd44',
-      errorColor: '#ff5555'
-    }
-  },
-  {
-    name: 'Dark Blue',
-    colors: {
-      bgColor: '#1a1a2e',
-      textPrimary: '#e94560',
-      textSecondary: '#0f3460',
-      primaryColor: '#16213e',
-      errorColor: '#e94560'
-    }
-  },
-  {
-    name: 'Forest',
-    colors: {
-      bgColor: '#1a3a1a',
-      textPrimary: '#90ee90',
-      textSecondary: '#4a7c59',
-      primaryColor: '#32cd32',
-      errorColor: '#ff6b6b'
-    }
-  },
-  {
-    name: 'Purple Dream',
-    colors: {
-      bgColor: '#2d1b3d',
-      textPrimary: '#f8f8ff',
-      textSecondary: '#9370db',
-      primaryColor: '#da70d6',
-      errorColor: '#ff69b4'
-    }
-  },
-  {
-    name: 'Ocean',
-    colors: {
-      bgColor: '#0d1b2a',
-      textPrimary: '#ffffff',
-      textSecondary: '#415a77',
-      primaryColor: '#61a5c2',
-      errorColor: '#e63946'
-    }
-  },
-  {
-    name: 'Sunset',
-    colors: {
-      bgColor: '#2d1b0d',
-      textPrimary: '#fff8dc',
-      textSecondary: '#cd853f',
-      primaryColor: '#ff8c00',
-      errorColor: '#dc143c'
-    }
-  },
-  {
-    name: 'Cyberpunk',
-    colors: {
-      bgColor: '#0a0a0a',
-      textPrimary: '#00ff00',
-      textSecondary: '#008000',
-      primaryColor: '#ff00ff',
-      errorColor: '#ff0000'
-    }
-  },
-  {
-    name: 'Light Mode',
-    colors: {
-      bgColor: '#ffffff',
-      textPrimary: '#333333',
-      textSecondary: '#666666',
-      primaryColor: '#007acc',
-      errorColor: '#dc3545'
-    }
-  }
-];
 
 // Time options for the user to choose from
 const timeOptions = [
@@ -680,13 +176,13 @@ function processUsers(users: User[]): User[] {
   return users.filter(user => user.isActive)
               .sort((a, b) => a.name.localeCompare(b.name));
 }`,
-    `type ApiResponse<T> = {
+    `type ApiResponse&lt;T&gt; = {
   data: T;
   status: 'success' | 'error';
   message?: string;
 }
 
-async function fetchApi<T>(url: string): Promise<ApiResponse<T>> {
+async function fetchApi&lt;T&gt;(url: string): Promise&lt;ApiResponse&lt;T&gt;&gt; {
   const response = await fetch(url);
   return await response.json();
 }`,
@@ -773,11 +269,11 @@ const filteredItems = computed(() =&gt; {
     public static int search(int[] arr, int target) {
         int left = 0, right = arr.length - 1;
         
-        while (left <= right) {
+        while (left &lt;= right) {
             int mid = left + (right - left) / 2;
             
             if (arr[mid] == target) return mid;
-            if (arr[mid] < target) left = mid + 1;
+            if (arr[mid] &lt; target) left = mid + 1;
             else right = mid - 1;
         }
         
@@ -964,7 +460,7 @@ function gameOver() {
   isGameOver.value = true;
   const wpm = getWpm();
   const accuracy = getAccuracy();
-  info.value = `WPM: ${wpm}\nAccuracy: ${accuracy}%`;
+  info.value = `WPM: ${wpm} | Accuracy: ${accuracy}%`;
 }
 
 function focusGame() {
@@ -1136,59 +632,7 @@ function handleCodeMode(key, isLetter, isBackspace, isEnter, isTab) {
   }
 }
 
-function toggleThemeModal() {
-  showThemeModal.value = !showThemeModal.value;
-}
-
-function closeThemeModal() {
-  showThemeModal.value = false;
-}
-
-function applyPresetTheme(theme) {
-  currentTheme.value = { ...theme };
-  updateTheme();
-}
-
-function updateTheme() {
-  const { colors } = currentTheme.value;
-  document.documentElement.style.setProperty('--bgColor', colors.bgColor);
-  document.documentElement.style.setProperty('--textPrimary', colors.textPrimary);
-  document.documentElement.style.setProperty('--textSecondary', colors.textSecondary);
-  document.documentElement.style.setProperty('--primaryColor', colors.primaryColor);
-  document.documentElement.style.setProperty('--errorColor', colors.errorColor);
-  
-  // Save to localStorage
-  localStorage.setItem('typr-theme', JSON.stringify(currentTheme.value));
-}
-
-function resetToDefault() {
-  currentTheme.value = { ...presetThemes[0] };
-  updateTheme();
-}
-
-function saveTheme() {
-  // Theme is already saved to localStorage in updateTheme
-  alert('Theme saved successfully!');
-  closeThemeModal();
-}
-
-function loadSavedTheme() {
-  const savedTheme = localStorage.getItem('typr-theme');
-  if (savedTheme) {
-    try {
-      currentTheme.value = JSON.parse(savedTheme);
-      updateTheme();
-    } catch (error) {
-      console.error('Error loading saved theme:', error);
-    }
-  } else {
-    // Apply default theme
-    updateTheme();
-  }
-}
-
 onMounted(() => {
-  loadSavedTheme();
   newGame();
   const gameEl = document.getElementById('game');
   gameEl.addEventListener('focus', () => isFocused.value = true);
@@ -1221,7 +665,7 @@ body{
     -moz-osx-font-smoothing: grayscale;
 }
 main{
-    max-width: 700px;
+    max-width: 900px;
     margin: 50px auto;
     padding: 0 20px;
 }
@@ -1238,13 +682,15 @@ h1 svg{
 #header{
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin: 20px 0 40px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 #controls {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
 }
 #mode-selector {
@@ -1355,13 +801,16 @@ div#game:focus{
 #words{
     color: var(--textSecondary);
     transition: filter 0.3s ease;
+    text-align: left;
 }
 #words.code-content {
     font-family: 'Roboto Mono', monospace;
     font-size: 0.9rem;
+    text-align: left;
 }
 .code-container {
     position: relative;
+    text-align: left;
 }
 .code-info {
     position: absolute;
@@ -1378,6 +827,7 @@ div#game:focus{
     margin: 0;
     white-space: pre-wrap;
     font-family: 'Roboto Mono', monospace;
+    text-align: left;
 }
 .code-char {
     position: relative;
@@ -1447,5 +897,30 @@ div.word{
 }
 #game.over #cursor {
     display: none;
+}
+
+/* Responsive layout fixes */
+@media (max-width: 768px) {
+    main {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+    
+    #header {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    #controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    #mode-selector,
+    #time-options {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
 </style>
